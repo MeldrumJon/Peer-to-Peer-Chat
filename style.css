@@ -1,0 +1,105 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+/* Message container */
+html {
+	height: 100%;
+}
+body {
+	font: normal normal normal 14px/1.2 "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	background: #fff;
+	color: #333;
+	padding: 1rem;
+	position:absolute;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;
+}
+
+/* Messages */
+
+#msg-box {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+
+#msg-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	padding: 1rem 0.3rem;
+}
+
+#msgs {
+	display: table;
+	border-spacing: 0 1rem;
+}
+#msgs > div {
+	display: table-row;
+}
+#msg-content time::before { content: '['; }
+#msg-content time::after { content: ']'; }
+#msg-content time {
+	display: table-cell;
+	color: #888;
+	text-align: left;
+	width: 5.5rem;
+}
+#msg-content .person {
+	display: table-cell;
+	min-width: 5rem;
+	width: 20%;
+	text-align: right;
+	padding: 0 0.5rem;
+	color: #234788;
+}
+#msg-content .content {
+	display: table-cell;
+	border-left: 1px #ccc solid;
+	padding-left: 0.5rem;
+}
+
+#msg-content .self .person { color: #c72c31; }
+#msg-content .self .content { color: #5c5c5c; }
+
+
+
+/* Composition Area */
+
+#msg-compose {
+	display: flex;
+}
+#msg-compose #self {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 0.2rem 1rem;
+	/* color: #c72c31; */
+}
+#msg-compose #msg {
+	flex: 1;
+	padding: 0.5rem;
+	font-size: 1rem;
+	border: solid 1px #999;
+	border-right: none;
+}
+#msg-compose a {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	line-height: 1;
+	padding: 0.2rem 1rem;
+	font-size: 1.2rem;
+	border: none;
+	background: #159;
+	color: #fff;
+	font-weight: bold;
+	text-decoration: none;
+}
+#msg-compose a:active {
+	color: #bdf;
+}

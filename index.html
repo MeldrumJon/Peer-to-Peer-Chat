@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Tic Tac Toe with PeerJS</title>
-</head>
-<body>
-See JavaScript Console.
 
-<script src="js/peerjs.min.js"></script>
-<script src="js/app.js"></script>
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="style.css">
+	<title>WebRTC P2P Chat</title>
+</head>
+
+<body>
+	<div id="msg-box">
+		<div id="msg-content">
+			<div id="msgs">
+			</div>
+		</div>
+		<div id="msg-compose">
+			<span id="self">Message: </span>
+			<div id="msg" placeholder="Message text..." contenteditable></div>
+			<a id="send" role="button" href="#">Send</a>
+		</div>
+	</div>
+
+	<script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
+	<script type="module" src="js/app.js"></script>
 </body>
+
 </html>

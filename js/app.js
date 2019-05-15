@@ -1,52 +1,52 @@
-let peer = null;
-let conn = null;
+import * as comm from './comm.js';
 
-// STEP 1
-function init() {
-    console.log('Opening peer.');
-    peer = new Peer();
-    peer.on('open', connect);
+function send_msg(msg) {
+	comm.send(msg);
+
+	let date = new Date();
+	let timestr = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+
+	let html = '';
+	html += '<div class="self">';
+	html += '<time>' + timestr + '</time>';
+	html += '<span class="person">' + 'Sent' + '</span>';
+	html += '<span class="content">' + msg + '</span>';
+	html += '</div>';
+
+	document.getElementById('msgs').innerHTML += html;
 }
 
-// STEP 2
-function connect(myid) {
-    console.log('Connecting.')
+function receive_msg(msg) {
+	let date = new Date();
+	let timestr = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 
-    let params = new URLSearchParams(window.location.search);
-    peerid = params.get('id');
-    if (peerid !== null) { // Start connection.
-        conn = peer.connect(peerid);
-        conn.on('open', connected);
-    }
-    else { // Receive connection
-        let url = new URL(window.location.href);
-        url.searchParams.append('id', myid);
-        console.log(url);
-        peer.on('connection', function(cn) {
-            conn = cn;
-            conn.on('open', connected);
-        })
-    }
+	let html = '';
+	html += '<div>';
+	html += '<time>' + timestr + '</time>';
+	html += '<span class="person">' + 'Received' + '</span>';
+	html += '<span class="content">' + msg + '</span>';
+	html += '</div>';
+
+	document.getElementById('msgs').innerHTML += html;
 }
-
-function connected() {
-    console.log('Sending is OK!');
-
-    conn.on('data', received);
-}
-
-function received(data) {
-    console.log(data);
-}
-
-function send(data) {
-    conn.send(data);
-}
-
 
 function main() {
-    console.log('Hello World!');
-    init();
+	comm.init(receive_msg);
+
+	document.getElementById('send').onclick = function () {
+		let el = document.getElementById('msg');
+		let txt = el.innerText;
+		el.innerHTML = '';
+		if (txt.replace(/\s/g, '').length) { // Text has more than whitespace
+			send_msg(txt);
+		}
+	}
+	document.getElementById('msg').onkeypress = function (event) {
+		if (event.keyCode === 13 && !event.shiftKey) {
+			event.preventDefault();
+			document.getElementById("send").click();
+		}
+	}
 }
 
-window.load=main();
+window.load = main();

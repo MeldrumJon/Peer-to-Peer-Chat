@@ -1,61 +1,114 @@
+import * as dom from './dom.js'
+
 let peer = null;
 let conn = null;
 
-// STEP 1
-/**
- * Connects with a peer.  
- * 
- * If an ID is given, connects to that ID.  Otherwise calls wait_for_conn and 
- * supplies an ID to give to a peer.
- * 
- * Once the peer is connected, calls connected.
- * 
- * Received data is parsed by the "received" function passed by the parameter.
- * Sent data is sent with the "send" function in this file.
- */
-function init(received) {
-	console.log('Opening peer.');
+// Flags
+let connected = false;
+
+/* 
+	Establishes a connection between two peers.  If a peerID is provided, it
+	begins a connection with that Peer.  Otherwise, it calls the wait callback
+	function, passing its ID.  The client must send this ID to their peer so 
+	that the peer can connect.
+
+	The callbacks object may contain the following functions:
+	{
+		// Called if an peer ID was not supplied for connection and we are
+		// waiting for a connection from another peer:
+		wait: function(id) { ... }
+		// Called when two peers are connected:
+		connected: function() { ... }
+		// Called when the two peers are disconnected:
+		disconnected: function() { ... }
+	}
+*/
+function init(callbacks, peerID) {
+	console.log('Connecting to Peer server.');
 	peer = new Peer();
-	peer.on('open', function(myID) { // Has ID
-		console.log('My ID: ' + myID);
+	peer.on('open', function gotID(myID) { // Connected to Peer server, received ID.
+		console.log('Established connection to Peer server. My ID: ' + myID);
 
-		// URL may contain the ID of the peer we want to connect to
-		let params = new URLSearchParams(window.location.search);
-		let peerID = params.get('id');
-
-		if (peerID !== null) { // URL has ID.  Start connection.
-			console.log('Starting connection.');
+		if (peerID !== null) { // Connect to the peer.
+			console.log('Connecting to peer.');
 			conn = peer.connect(peerID);
-			conn.on('open', connected);
+			conn.on('open', peersConnected);
+			conn.on('close', peersDisconnected);
 		}
-		else { // Wait for a connection
-			console.log('Waiting for connection.')
-			wait_for_conn(myID);
-			peer.on('connection', function(_conn) {
+		else { // or Wait for a connection
+			console.log('Waiting for connection from peer.')
+			if (typeof callbacks.wait === 'function') {
+				callbacks.wait(myID);
+			}
+			peer.on('connection', function madeConnection(_conn) {
 				conn = _conn;
-				conn.on('open', connected);
-			})
+				conn.on('open', peersConnected);
+				conn.on('close', peersDisconnected);
+			});
 		}
 	});
+	window.addEventListener('beforeunload', cleanUp);
 
-	function wait_for_conn(myID) {
-		let url = new URL(window.location.href);
-		url.searchParams.append('id', myID);
-		console.log('Have peer navigate to: ' + url.href);
+	function peersConnected() {
+		connected = true;
+		peer.disconnect(); // We no longer need the peer server.
+		// Listen for data.
+		conn.on('data', _received); // Call received when we receive data.
+		if (typeof callbacks.received === 'function') {
+			received_cb = callbacks.received;
+		}
+		// Success!
+		console.log('Peers successfully connected.');
+		if (typeof callbacks.connected === 'function') {
+			callbacks.connected();
+		}
 	}
 
-	function connected() {
-		conn.on('data', received); // Call received when we receive data.
-		console.log('Successfully connected.');
+	function peersDisconnected() {
+		connected = false
+		console.log("Peers have been disconnected.");
+		if (typeof callbacks.disconnected === 'function') {
+			callbacks.disconnected();
+		}
+	}
+
+	/* When window is closed, close the connections */
+	function cleanUp(event) {
+		peer.destroy();
+		console.log('Peer destroyed.');
 	}
 }
 
-function send(msg) {
+/**
+ * @param {*} _data 
+ */
+function _received(_data) {
+	let type = _data.type;
+	let data = _data.data;
+	// Process received data
+	if (type === 'Message') {
+		dom.appendMesssage('received', data.name, data.message);
+	}
+}
+
+/**
+ * Used to send data to the peer.
+ * @param {*} data 
+ */
+function send(type, data) {
 	if (conn === null) {
-		console.error('Connection has not been established!');
-		return;
+		throw "Connection not established!";
 	}
-	conn.send(msg);
+	let _data = {
+		'type': type,
+		'data': data
+	};
+	conn.send(_data);
+
+	// Process sent data
+	if (type === 'Message') {
+		dom.appendMesssage('sent', data.name, data.message);
+	}
 }
 
-export {init, send};
+export {init, send, connected};

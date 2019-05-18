@@ -21,6 +21,8 @@ body {
 /* Messages */
 
 #msg-box {
+	max-width: 800px;
+	margin: 0 auto;
 	display: flex;
 	flex-direction: column;
 	min-height: 100%;
@@ -63,8 +65,8 @@ body {
 	padding-left: 0.5rem;
 }
 
-#msg-content .self .person { color: #c72c31; }
-#msg-content .self .content { color: #5c5c5c; }
+#msg-content .sent .person { color: #c72c31; }
+#msg-content .sent .content { color: #5c5c5c; }
 
 
 
@@ -101,5 +103,84 @@ body {
 	text-decoration: none;
 }
 #msg-compose a:active {
+	color: #bdf;
+}
+
+/* Popups */
+
+/* Javascript rules */
+body.get_name #shade,
+body.show_url #shade,
+body.wait_for_connection #shade,
+body.disconnected #shade {
+	display: flex;
+}
+body.messaging #shade {
+	display: none;
+}
+
+#box > div {
+	display: none;
+}
+body.get_name #get_name,
+body.show_url #show_url,
+body.wait_for_connection #wait_for_connection,
+body.disconnected #disconnected {
+	display: block;
+}
+
+#shade {
+	background: rgba(0, 0, 0, 0.6);
+	z-index: 2;
+	position:absolute;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+}
+
+#box {
+	box-shadow: rgba(0, 0, 0, 0.6) 0 0 40px;
+	display: block;
+	margin: 0 auto;
+	background: #fff;
+	padding: 1em;
+}
+#box h2 {
+	margin: 0 0 1.5rem 0;
+	padding: 0 2.5em 0.4rem 0;
+	border-bottom: #777 1px solid;
+	color: #333;
+	font-size: 1.5rem;
+}
+
+#box .enterarea {
+	display: flex;
+}
+#box .enterarea .info {
+	flex: 1;
+	padding: 0.5rem;
+	font-size: 1rem;
+	border: solid 1px #999;
+	border-right: none;
+	text-align: center;
+}
+#box .enterarea a {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	line-height: 1;
+	padding: 0.2rem 1rem;
+	font-size: 1.2rem;
+	border: none;
+	background: #159;
+	color: #fff;
+	font-weight: bold;
+	text-decoration: none;
+}
+#box .enterarea a:active {
 	color: #bdf;
 }

@@ -1,52 +1,26 @@
 import * as comm from './comm.js';
-
-function send_msg(msg) {
-	comm.send(msg);
-
-	let date = new Date();
-	let timestr = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
-
-	let html = '';
-	html += '<div class="self">';
-	html += '<time>' + timestr + '</time>';
-	html += '<span class="person">' + 'Sent' + '</span>';
-	html += '<span class="content">' + msg + '</span>';
-	html += '</div>';
-
-	document.getElementById('msgs').innerHTML += html;
-}
-
-function receive_msg(msg) {
-	let date = new Date();
-	let timestr = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
-
-	let html = '';
-	html += '<div>';
-	html += '<time>' + timestr + '</time>';
-	html += '<span class="person">' + 'Received' + '</span>';
-	html += '<span class="content">' + msg + '</span>';
-	html += '</div>';
-
-	document.getElementById('msgs').innerHTML += html;
-}
+import * as dom from './dom.js';
+import * as G from './globals.js';
+import fsm from './fsm.js';
 
 function main() {
-	comm.init(receive_msg);
 
-	document.getElementById('send').onclick = function () {
-		let el = document.getElementById('msg');
-		let txt = el.innerText;
-		el.innerHTML = '';
-		if (txt.replace(/\s/g, '').length) { // Text has more than whitespace
-			send_msg(txt);
-		}
-	}
-	document.getElementById('msg').onkeypress = function (event) {
-		if (event.keyCode === 13 && !event.shiftKey) {
-			event.preventDefault();
-			document.getElementById("send").click();
-		}
-	}
+	fsm('INIT');
+
+	// URL may contain the ID of the peer we want to connect to
+	let callbacks = {
+		'wait': dom.updateShareURL,
+		'connected': () => { fsm('CONNECTED') },
+		'disconnected': () => { fsm('DISCONNECTED') }
+	};
+
+	let params = new URLSearchParams(window.location.search);
+	let peerID = params.get('id');
+	G.set('hasPeerID', (peerID !== null) );
+
+	comm.init(callbacks, peerID);
+
+	dom.init();
 }
 
-window.load = main();
+main();

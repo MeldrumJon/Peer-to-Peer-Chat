@@ -2,9 +2,10 @@
 <html>
 
 <head>
-	<meta charset="UTF-8">
-	<link rel="stylesheet" href="style.css">
 	<title>WebRTC P2P Chat</title>
+	<link rel="stylesheet" href="style.css">
+	<script defer src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
+	<script defer type="module" src="js/app.js"></script>
 </head>
 
 <body>
@@ -20,8 +21,36 @@
 		</div>
 	</div>
 
-	<script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
-	<script type="module" src="js/app.js"></script>
+	<div id="shade">
+		<div id="box">
+			<div id="get_name" class="close">
+				<h2>Enter your screen name.</h2>
+				<div class="enterarea">
+					<input type="text" id="myname" name="myname"  class="info"/>
+					<a id="savename" role="button" href="#">Continue</a>
+				</div>
+			</div>
+			<div id="show_url" class="close">
+				<h2>Share this link with a friend:</h2>
+				<div class="enterarea">
+					<div id="shareurl" class="info"></div>
+					<a id="copyurl" role="button" href="#">Copy</a>
+				</div>
+			</div>
+			<div id="wait_for_connection" class="close">
+				<h2>Connecting...</h2>
+				<div class="enterarea">
+					Please wait while connecting to peer.
+				</div>
+			</div>
+			<div id="disconnected" class="close">
+				<h2>Disconnected.</h2>
+				<div class="enterarea">
+					Your peer has disconnected.
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>

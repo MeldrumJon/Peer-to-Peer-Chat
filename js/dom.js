@@ -19,6 +19,12 @@ function init() {
 			nameInput.style = 'border-color: #f00';
 		}
 	}
+	nameInput.onkeypress = function (event) {
+		if (event.keyCode === 13) {
+			event.preventDefault();
+			nameBtn.click();
+		}
+	}
 
 	/*** Select and copy share URL ***/
 	const shareURL = document.getElementById('shareurl');

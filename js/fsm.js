@@ -19,6 +19,8 @@ const machine = {
 						return 'wait_for_connection';
 					}
 					else {
+						const shareURL = document.getElementById('shareurl');
+						window.getSelection().selectAllChildren(shareURL);
 						return 'show_url';
 					}
 				},

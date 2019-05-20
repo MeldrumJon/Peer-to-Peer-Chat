@@ -3,22 +3,36 @@ import * as dom from './dom.js';
 import * as G from './globals.js';
 import fsm from './fsm.js';
 
-function main() {
+/**
+ * Gets the peer ID we want to connect to from the URL.
+ */
+function URL2PeerID() {
+	let params = new URLSearchParams(window.location.search);
+	let peerID = params.get('peerID');
+	return peerID;
+}
 
+/**
+ * Returns a URL containing a peerID parameter.
+ * @param {String} id 
+ */
+function PeerID2URL(id) {
+	let url = new URL(window.location.href);
+	url.searchParams.append('peerID', id);
+	return url;
+}
+
+function main() {
 	fsm('INIT');
 
-	// URL may contain the ID of the peer we want to connect to
 	let callbacks = {
-		'wait': dom.updateShareURL,
-		'connected': () => { fsm('CONNECTED') },
-		'disconnected': () => { fsm('DISCONNECTED') }
+		'wait': (id) => { 
+			dom.updateShareURL(PeerID2URL(id));
+		},
+		'connected': () => { fsm('CONNECTED'); },
+		'disconnected': () => { fsm('DISCONNECTED'); }
 	};
-
-	let params = new URLSearchParams(window.location.search);
-	let peerID = params.get('id');
-	G.set('hasPeerID', (peerID !== null) );
-
-	comm.init(callbacks, peerID);
+	comm.init(callbacks, URL2PeerID());
 
 	dom.init();
 }

@@ -10,48 +10,53 @@ body {
 	font: normal normal normal 14px/1.2 "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 	background: #fff;
 	color: #333;
-	padding: 1rem;
-	position:absolute;
-	top:0;
-	bottom:0;
-	right:0;
-	left:0;
+	position: absolute;;
+	top:1rem;
+	bottom:1rem;
+	right:1rem;
+	left:1rem;
 }
 
 /* Messages */
 
-#msg-box {
+#content {
 	max-width: 800px;
+	height: 100%;
+	max-height: 100%;
 	margin: 0 auto;
 	display: flex;
 	flex-direction: column;
-	min-height: 100%;
+	overflow: hidden;
 }
 
-#msg-content {
+#message_flex {
 	flex: 1;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-end;
 	padding: 1rem 0.3rem;
+	overflow: hidden;
 }
 
-#msgs {
+#messages_container {
+	height: 100%;
+	overflow: auto;
+}
+
+#messages {
 	display: table;
+	width: 100%;
 	border-spacing: 0 1rem;
 }
-#msgs > div {
+#messages > div {
 	display: table-row;
 }
-#msg-content time::before { content: '['; }
-#msg-content time::after { content: ']'; }
-#msg-content time {
+#messages time::before { content: '['; }
+#messages time::after { content: ']'; }
+#messages time {
 	display: table-cell;
 	color: #888;
 	text-align: left;
 	width: 5.5rem;
 }
-#msg-content .person {
+#messages .person {
 	display: table-cell;
 	min-width: 5rem;
 	width: 20%;
@@ -59,37 +64,35 @@ body {
 	padding: 0 0.5rem;
 	color: #234788;
 }
-#msg-content .content {
+#messages .content {
 	display: table-cell;
 	border-left: 1px #ccc solid;
 	padding-left: 0.5rem;
 }
 
-#msg-content .sent .person { color: #c72c31; }
-#msg-content .sent .content { color: #5c5c5c; }
+#messages .sent .person { color: #c72c31; }
+#messages .sent .content { color: #5c5c5c; }
 
 
-
-/* Composition Area */
-
-#msg-compose {
+#compose_area {
 	display: flex;
+	width: 100%;
+	margin-bottom: 1rem;
 }
-#msg-compose #self {
+#compose_area #name {
 	display: flex;
-	flex-direction: column;
+	align-items: center;
 	justify-content: center;
 	padding: 0.2rem 1rem;
-	/* color: #c72c31; */
 }
-#msg-compose #msg {
+#compose_area #message {
 	flex: 1;
 	padding: 0.5rem;
 	font-size: 1rem;
 	border: solid 1px #999;
 	border-right: none;
 }
-#msg-compose a {
+#compose_area a#send_btn {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -102,65 +105,43 @@ body {
 	font-weight: bold;
 	text-decoration: none;
 }
-#msg-compose a:active {
+#compose_area a#send_btn:active {
 	color: #bdf;
 }
 
-/* Popups */
-
-/* Javascript rules */
-body.get_name #shade,
-body.show_url #shade,
-body.wait_for_connection #shade,
-body.disconnected #shade {
-	display: flex;
-}
-body.messaging #shade {
-	display: none;
-}
-
-#box > div {
-	display: none;
-}
-body.get_name #get_name,
-body.show_url #show_url,
-body.wait_for_connection #wait_for_connection,
-body.disconnected #disconnected {
-	display: block;
-}
+/* Modal Boxes */
 
 #shade {
 	background: rgba(0, 0, 0, 0.6);
-	z-index: 2;
-	position:absolute;
-	top:0;
-	bottom:0;
-	right:0;
-	left:0;
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
+	position: fixed; /* Relative to view port (If user scrolls, we want the window)*/
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	z-index: 10;
 }
 
-#box {
-	box-shadow: rgba(0, 0, 0, 0.6) 0 0 40px;
-	display: block;
-	margin: 0 auto;
+.modal {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	background: #fff;
+	box-shadow: rgba(0, 0, 0, 0.6) 0 0 40px;
 	padding: 1em;
 }
-#box h2 {
+.modal h2 {
+	font-size: 1.5rem;
+	color: #333;
+	border-bottom: #777 1px solid;
 	margin: 0 0 1.5rem 0;
 	padding: 0 2.5em 0.4rem 0;
-	border-bottom: #777 1px solid;
-	color: #333;
-	font-size: 1.5rem;
 }
 
-#box .enterarea {
+.modal .input_area {
 	display: flex;
 }
-#box .enterarea .info {
+.modal .input_area .info {
 	flex: 1;
 	padding: 0.5rem;
 	font-size: 1rem;
@@ -168,7 +149,7 @@ body.disconnected #disconnected {
 	border-right: none;
 	text-align: center;
 }
-#box .enterarea a {
+.modal .input_area a {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -181,6 +162,65 @@ body.disconnected #disconnected {
 	font-weight: bold;
 	text-decoration: none;
 }
-#box .enterarea a:active {
+.modal .input_area a:active {
 	color: #bdf;
 }
+
+.modal p {
+	margin-bottom: 0.3rem;
+}
+
+/*
+	Web App FSM States:
+		get_name
+		show_url
+		wait_for_connection
+		disconnected
+		messaging
+*/
+
+/* Shade in the background */
+body.get_name #shade,
+body.show_url #shade,
+body.wait_for_connection #shade,
+body.disconnected #shade { /* Show shade overlay */
+	transition: opacity linear 0.25s;
+	z-index: 10;
+	opacity: 1;
+}
+/* When to hide the shade */
+body.messaging #shade {
+	transition: opacity linear 0.25s;
+	z-index: -20;
+	opacity: 0;
+}
+
+/* Modal windows */
+.modal { /* Hide popup windows normally */
+	/* Finish opacity transition before ever seeing window move. */
+	transition: opacity 0.25s linear 0s, top 0.25s linear 0.25s;
+	z-index: -10;
+	opacity: 0;
+	top: -50%;
+}
+body.messaging .modal {
+	/* Move window out of way before ever seeing opacity transition. */
+	transition: top 0.25s linear 0s, opacity 0.25s linear 0.25s;
+}
+body.get_name #get_name, body.show_url #show_url,
+body.wait_for_connection #wait_for_connection,
+body.disconnected #disconnected { /* Show popup windows */
+	/* Show windows by opacity transition alone */
+	transition: opacity 0.25s linear 0s;
+	z-index: 20;
+	opacity: 1;
+	top: 50%;
+}
+
+/* Composition Bar */
+/* #compose_area {
+	visibility: hidden;
+}
+body.messaging #compose_area {
+	visibility: visible;
+} */

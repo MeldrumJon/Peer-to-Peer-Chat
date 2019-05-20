@@ -9,46 +9,41 @@
 </head>
 
 <body>
-	<div id="msg-box">
-		<div id="msg-content">
-			<div id="msgs">
+	<div id="content">
+		<div id="message_flex">
+			<div id="messages_container">
+				<div id="messages"></div>
 			</div>
 		</div>
-		<div id="msg-compose">
-			<span id="self">Message: </span>
-			<div id="msg" placeholder="Message text..." contenteditable></div>
-			<a id="send" role="button" href="#">Send</a>
+		<div id="compose_area">
+			<span id="name">Message: </span>
+			<div id="message" placeholder="Message text..." contenteditable></div>
+			<a id="send_btn" role="button" href="#">Send</a>
 		</div>
 	</div>
 
 	<div id="shade">
-		<div id="box">
-			<div id="get_name" class="close">
-				<h2>Enter your screen name.</h2>
-				<div class="enterarea">
-					<input type="text" id="myname" name="myname"  class="info"/>
-					<a id="savename" role="button" href="#">Continue</a>
-				</div>
+		<div id="get_name" class="modal">
+			<h2>Enter your screen name.</h2>
+			<div class="input_area">
+				<input type="text" id="screen_name" name="screen_name"  class="info"/>
+				<a id="name_btn" role="button" href="#">Continue</a>
 			</div>
-			<div id="show_url" class="close">
-				<h2>Share this link with a friend:</h2>
-				<div class="enterarea">
-					<div id="shareurl" class="info"></div>
-					<a id="copyurl" role="button" href="#">Copy</a>
-				</div>
+		</div>
+		<div id="show_url" class="modal">
+			<h2>Share this link with a friend:</h2>
+			<div class="input_area">
+				<div id="share_url" class="info"></div>
+				<a id="copy_btn" role="button" href="#">Copy</a>
 			</div>
-			<div id="wait_for_connection" class="close">
-				<h2>Connecting...</h2>
-				<div class="enterarea">
-					Please wait while connecting to peer.
-				</div>
-			</div>
-			<div id="disconnected" class="close">
-				<h2>Disconnected.</h2>
-				<div class="enterarea">
-					Your peer has disconnected.
-				</div>
-			</div>
+		</div>
+		<div id="wait_for_connection" class="modal">
+			<h2>Connecting...</h2>
+			<p>Please wait while connecting to peer.</p>
+		</div>
+		<div id="disconnected" class="modal">
+			<h2>Disconnected.</h2>
+			<p>Your peer has disconnected.</p>
 		</div>
 	</div>
 </body>

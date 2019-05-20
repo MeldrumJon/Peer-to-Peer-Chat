@@ -1,18 +1,19 @@
 import * as comm from './comm.js'
 import fsm from './fsm.js'
-import * as G from './globals.js'
 
 /**
  * Sets up events.
  */
 function init() {
 	/*** Input screen name ***/
-	const nameBtn = document.getElementById('savename');
-	const nameInput = document.getElementById('myname');
+	const nameShow = document.getElementById('name');
+	const nameBtn = document.getElementById('name_btn');
+	const nameInput = document.getElementById('screen_name');
 	nameBtn.onclick = function() {
 		let name = nameInput.value;
 		if (name.replace(/\s/g, '').length) { // Text has more than whitespace
-			G.set('myName', name);
+			sessionStorage.setItem('screenName', name);
+			nameShow.innerHTML = name;
 			fsm('NAME_SUBMITTED');
 		}
 		else {
@@ -27,8 +28,8 @@ function init() {
 	}
 
 	/*** Select and copy share URL ***/
-	const shareURL = document.getElementById('shareurl');
-	const copyBtn = document.getElementById('copyurl');
+	const shareURL = document.getElementById('share_url');
+	const copyBtn = document.getElementById('copy_btn');
 	// Select Share URL
 	shareURL.onclick = function () {
 		window.getSelection().selectAllChildren(shareURL);
@@ -40,21 +41,23 @@ function init() {
 	}
 
 	/*** Send Messages ***/
-	const sendBtn = document.getElementById('send');
-	const msgElement = document.getElementById('msg');
+	const sendBtn = document.getElementById('send_btn');
+	const msgInput = document.getElementById('message');
+	const messagesContainer = document.getElementById('messages_container');
 	// Send a message
 	sendBtn.onclick = function () {
-		let msg = msgElement.innerText; // Get message
-		msgElement.innerHTML = '';
-		if (msg.replace(/\s/g, '').length) { // Text has more than whitespace
+		let message = msgInput.innerText; // Get message
+		msgInput.innerHTML = '';
+		if (message.replace(/\s/g, '').length) { // Text has more than whitespace
 			comm.send('Message', {
-				'name': G.get('myName'),
-				'message': msg
+				'name': sessionStorage.getItem('screenName', name),
+				'message': message
 			});
 		}
+		messagesContainer.scrollTop = messagesContainer.scrollHeight;
 	}
 	// Send message on enter
-	msgElement.onkeypress = function (event) {
+	msgInput.onkeypress = function (event) {
 		if (event.keyCode === 13 && !event.shiftKey) {
 			event.preventDefault();
 			sendBtn.click();
@@ -63,14 +66,12 @@ function init() {
 }
 
 /**
- * 
- * @param {*} id ID received from Peer server.
+ * Display the URL to connect to this peer.
+ * @param {String} url 
  */
-function updateShareURL(id) {
-	let url = new URL(window.location.href);
-	url.searchParams.append('id', id);
-
-	const shareURL = document.getElementById('shareurl');
+function updateShareURL(url) {
+	console.log(url);
+	const shareURL = document.getElementById('share_url');
 	shareURL.innerHTML = url.href;
 }
 
@@ -90,7 +91,7 @@ function appendMesssage(type, name, message) {
 	html += '<span class="content">' + message + '</span>';
 	html += '</div>';
 
-	const msgList = document.getElementById('msgs');
+	const msgList = document.getElementById('messages');
 	msgList.innerHTML += html;
 }
 export {init, updateShareURL, appendMesssage}

@@ -12,14 +12,14 @@ const machine = {
 		get_name: {
 			on: {
 				NAME_SUBMITTED: () => {
-					if (comm.connected === true) {
+					if (comm.isConnected === true) {
 						return 'messaging'
 					}
-					else if (G.get('hasPeerID')) {
+					else if (comm.peerID !== null) {
 						return 'wait_for_connection';
 					}
 					else {
-						const shareURL = document.getElementById('shareurl');
+						const shareURL = document.getElementById('share_url');
 						window.getSelection().selectAllChildren(shareURL);
 						return 'show_url';
 					}

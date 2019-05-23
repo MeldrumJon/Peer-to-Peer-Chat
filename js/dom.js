@@ -63,6 +63,15 @@ function init() {
 			sendBtn.click();
 		}
 	}
+
+	window.addEventListener("beforeunload", function (e) {
+        if (!comm.isConnected) {
+            return undefined;
+        }
+        var confirmationMessage = 'If you leave the page, you will be disconnected.';
+        (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+        return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+    });
 }
 
 /**

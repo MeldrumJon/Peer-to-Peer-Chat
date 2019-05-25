@@ -14,7 +14,17 @@ function init() {
 		if (name.replace(/\s/g, '').length) { // Text has more than whitespace
 			sessionStorage.setItem('screenName', name);
 			nameShow.innerHTML = name;
-			fsm('NAME_SUBMITTED');
+			if (comm.isConnected === true) {
+				fsm('GO_TO_MESSAGING');
+			}
+			else if (comm.peerID !== null) {
+				fsm('WAITING');
+			}
+			else {
+				const shareURL = document.getElementById('share_url');
+				window.getSelection().selectAllChildren(shareURL);
+				fsm('SHARE_URL');
+			}
 		}
 		else {
 			nameInput.style = 'border-color: #f00';
@@ -63,15 +73,6 @@ function init() {
 			sendBtn.click();
 		}
 	}
-
-	window.addEventListener("beforeunload", function (e) {
-        if (!comm.isConnected) {
-            return undefined;
-        }
-        var confirmationMessage = 'If you leave the page, you will be disconnected.';
-        (e || window.event).returnValue = confirmationMessage; //Gecko + IE
-        return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
-    });
 }
 
 /**

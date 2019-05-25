@@ -1,46 +1,25 @@
-import * as G from './globals.js'
 import * as comm from './comm.js'
 
 const machine = {
 	initial: "init",
 	states: {
 		init: {
-			on: {
-				INIT: 'get_name'
-			}
+			INIT: 'get_name'
 		},
 		get_name: {
-			on: {
-				NAME_SUBMITTED: () => {
-					if (comm.isConnected === true) {
-						return 'messaging'
-					}
-					else if (comm.peerID !== null) {
-						return 'wait_for_connection';
-					}
-					else {
-						const shareURL = document.getElementById('share_url');
-						window.getSelection().selectAllChildren(shareURL);
-						return 'show_url';
-					}
-				},
-			}
+			GO_TO_MESSAGING: 'messaging',
+			WAITING: 'wait_for_connection',
+			SHARE_URL: 'show_url'
 		},
 		show_url: {
-			on: {
-				CONNECTED: 'messaging'
-			}
+			HOST_CONNECTED: 'messaging'
 		},
 		wait_for_connection: {
-			on: {
-				CONNECTED: 'messaging'
-			}
+			PEER_CONNECTED: 'messaging'
 		},
 		disconnected: {},
 		messaging: {
-			on: {
-				DISCONNECTED: 'disconnected'
-			}
+			DISCONNECTED: 'disconnected'
 		}
 	}
 };
@@ -48,7 +27,7 @@ const machine = {
 let state = machine.initial;
 
 export default function fsm(event) {
-	let transition = machine.states[state].on[event];
+	let transition = machine.states[state][event];
 	if (typeof transition === 'function') {
 		state = transition();
 	}

@@ -1,12 +1,15 @@
 import * as dom from './dom.js'
 
+let isConnected = false;
+let peerID = null;
+
 // Private data
 let _peer = null;
 let _conn = null;
+let _receiveHandlers = {};
+let _sendHandlers = {};
 
-// Public information
-let isConnected = false;
-let peerID = null;
+function _isFct(f) { return (typeof f === 'function'); }
 
 /**
  * Establishes a connection between two peers.  If a peerID is provided, it 
@@ -14,15 +17,19 @@ let peerID = null;
  * function, passing a connection ID.  The user must send this ID to their 
  * peer so that they can connect.
  * 
- * @param {Object} callbacks The callbacks object may contain the following functions:
+ * @param {Object} cbs The callbacks object may contain the following functions:
  * {
- * 	// Called if an peer ID was not supplied for connection and we are
- * 	// waiting for a connection from another peer:
  * 	wait: function(myID) { ... }
- * 	// Called when two peers are connected:
- * 	connected: function() { ... }
- * 	// Called when the two peers are disconnected:
+ *   	  // Called if a peer ID was not supplied for connection and we are
+ * 	      // waiting for a connection from another peer.
+ * 	mst_connected: function() { ... }
+ *                 // Called when the two peers are connected in the "host" 
+ *                 // browser.
+ *  slv_connected: function() { ... }
+ *                 // Called when the two peers are connected in the browser 
+ *                 // supplied with the peer ID.
  * 	disconnected: function() { ... }
+ *                // Called when the two peers are disconnected:
  * }
  */
 function init(cbs, pID) {
@@ -37,7 +44,7 @@ function init(cbs, pID) {
 		}
 		else { // or Wait for a connection
 			console.log('Waiting for connection from peer.')
-			if (typeof cbs.wait === 'function') { cbs.wait(myID); }
+			if (_isFct(cbs.wait)) { cbs.wait(myID); }
 			_peer.on('connection', _connect); // Call connect with the data connection
 		}
 	});
@@ -53,17 +60,23 @@ function init(cbs, pID) {
 
 	function _connected() {
 		console.log('Connected to peer at ID: ' + _conn.peer);
+		if (peerID === null) {
+			if (_isFct(cbs.mst_connected)) { cbs.mst_connected(); }
+		}
+		else {
+			if (_isFct(cbs.slv_connected)) { cbs.slv_connected(); }
+		}
+
 		_conn.on('data', _received); // Call received when we receive data.
 		peerID = _conn.peer;
 		isConnected = true;
-		if (typeof cbs.connected === 'function') { cbs.connected(); }
 		_peer.disconnect(); // Don't allow any more connections
 	}
 
 	function _disconnected() {
 		console.log("Data connection has been closed.");
 		isConnected = false
-		if (typeof cbs.disconnected === 'function') { cbs.disconnected(); }
+		if (_isFct(cbs.disconnected)) { cbs.disconnected(); }
 	}
 }
 
@@ -76,14 +89,26 @@ function _received(obj) {
 	let type = obj.type;
 	let data = obj.data;
 
-	// Process received data
-	if (type === 'Message') {
-		dom.appendMesssage('received', data.name, data.message);
-	}
-	else if (type === 'SystemMsg') {
-		dom.appendMesssage('system', '*', data);
+	if (_isFct(_receiveHandlers[type])) {
+		_receiveHandlers[type](data);
 	}
 }
+
+/**
+ * When the we receive data from the peer, call a function if it matches
+ * the given type.
+ * @param {String} type Type of data to handle.
+ * @param {Function} fct Function to call when we receive that type of data.  
+ * The data is passed to fct as a parameter.
+ */
+function addReceiveHandler(type, fct) {
+	_receiveHandlers[type] = fct;
+}
+
+function removeReceiveHandler(type) {
+	delete _receiveHandlers[type];
+}
+
 
 /**
  * Send data to peer.
@@ -99,13 +124,25 @@ function send(type, data) {
 		'data': data
 	});
 
-	// Process sent data
-	if (type === 'Message') {
-		dom.appendMesssage('sent', data.name, data.message);
-	}
-	else if (type === 'SystemMsg') {
-		dom.appendMesssage('system', '*', data);
+	if (_isFct(_sendHandlers[type])) {
+		_sendHandlers[type](data);
 	}
 }
 
-export {init, send, isConnected, peerID};
+/**
+ * When the we send data to the peer, call a function if it matches
+ * the given type.
+ * @param {String} type Type of data to handle.
+ * @param {Function} fct Function to call when we send that type of data.  
+ * The data is passed to fct as a parameter.
+ */
+function addSendHandler(type, fct) {
+	_sendHandlers[type] = fct;
+}
+
+function removeSendHandler(type) {
+	delete _sendHandlers[type];
+}
+
+export {init, send, addReceiveHandler, removeReceiveHandler, 
+	addSendHandler, removeSendHandler, isConnected, peerID};

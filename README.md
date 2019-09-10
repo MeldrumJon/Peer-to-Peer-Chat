@@ -4,7 +4,7 @@ Peer to peer chat with WebRTC using PeerJS.
 
 ## Running Locally
 
-1. Install Node's http-server package globally:
+1. Install [Node's](https://nodejs.org/en/) http-server package:
 ```
 sudo npm install http-server -g
 ```
